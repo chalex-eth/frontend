@@ -1,25 +1,22 @@
-import logo from './logo.svg';
 import './App.css';
+import Auction from './components/Auction';
+import Header from './components/Header';
+import { useMoralis } from "react-moralis"
+
 
 function App() {
+
+  const { enableWeb3, isWeb3Enabled, isWeb3EnableLoading, account, Moralis, deactivateWeb3 } =
+    useMoralis()
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Header />
+      {account ? (<Auction />) : (<h2> Please connect wallet</h2>)}
+
+    </>
   );
 }
 
 export default App;
+
