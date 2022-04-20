@@ -63,7 +63,7 @@ export default function Auction() {
 
     async function setBidTx(e) {
         var bidVal = e.data[0].inputResult;
-        var minBid = Number(biddingPrice) + Number(0.0200); // lire data from sc
+        var minBid = Number(biddingPrice) + Number(0.0200);
         minBid = Math.round(minBid * 100) / 100;
         const options = {
             contractAddress: auctionAddress,
@@ -73,8 +73,8 @@ export default function Auction() {
         };
         if (bidVal >= minBid) {
             const transaction = await Moralis.executeFunction(options);
-            const receipt = await transaction.wait();
-            console.log(receipt);
+            const receipt = await transaction.wait(1);
+            handleTx();
         }
         else { handleBidTooLow() }
     }
@@ -91,6 +91,14 @@ export default function Auction() {
         })
     }
 
+    const handleTx = () => {
+        dispatch({
+            type: "success",
+            message: "Transaction Complete!",
+            title: "Transaction Notification",
+            position: "topR"
+        })
+    }
 
     return (
         <>
