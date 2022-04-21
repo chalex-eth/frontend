@@ -2,15 +2,15 @@ import { contractAddress, abi } from "../constants"
 import { useMoralis } from "react-moralis"
 import { useWeb3Contract } from "react-moralis"
 import { useEffect, useState } from "react"
-import { Information, Widget, Form } from "web3uikit"
+import { Information, Form } from "web3uikit"
 import { formatEther } from 'ethers/lib/utils'
 import { useNotification } from "web3uikit"
+import { useCountdown } from '../hooks/useCountdown';
 
 export default function Auction() {
-    const { Moralis, isWeb3Enabled, chainId: chainIdHex } = useMoralis()
-    // These get re-rendered every time due to our connect button!
+
+    const { Moralis, isWeb3Enabled, chainId: chainIdHex, account } = useMoralis()
     const chainId = parseInt(chainIdHex)
-    // console.log(`ChainId is ${chainId}`)
     const auctionAddress = chainId in contractAddress ? contractAddress[chainId][0] : null
 
     const [biddingPrice, setBidPrice] = useState("0")
@@ -18,6 +18,7 @@ export default function Auction() {
     const [endAuction, setEndingAuction] = useState("0")
     const dispatch = useNotification()
 
+    const shortenAddress = (addr) => `${addr.slice(0, 5)}...${addr.slice(-4)}`;
 
     const { runContractFunction: getbidPrice } = useWeb3Contract({
         abi: abi,
@@ -102,31 +103,30 @@ export default function Auction() {
 
     return (
         <>
-
             <Information information={endAuction}
                 topic="Auction end" />
-            <Information information={bidder}
+            <Information information={shortenAddress(bidder)}
                 topic="Winning bidder" />
             <Information information={biddingPrice + " ETH"}
                 topic="Current bid" />
 
-
-            <Form
-                buttonConfig={{
-                    onClick: function noRefCheck() { },
-                    theme: 'primary'
-                }}
-                data={[
-                    {
-                        inputWidth: '10%',
-                        name: 'Your bid',
-                        type: 'number',
-                        value: ""
-                    }
-                ]}
-                onSubmit={async (e) => await setBidTx(e)}
-                title="Place a bid"
-            />
+            {account ? (
+                <Form
+                    buttonConfig={{
+                        onClick: function noRefCheck() { },
+                        theme: 'primary'
+                    }}
+                    data={[
+                        {
+                            inputWidth: '10%',
+                            name: 'Your bid',
+                            type: 'number',
+                            value: ""
+                        }
+                    ]}
+                    onSubmit={async (e) => await setBidTx(e)}
+                    title="Place a bid"
+                />) : (<h2> Please connect wallet</h2>)}
 
         </>
     )

@@ -5,10 +5,9 @@ export default function Header() {
     return (
         <>
             <nav >
-                <h1 > Oddly Enough NFT 1:1 auction</h1>
-                <div >
-                    <ConnectButton moralisAuth={false} />
-                </div>
+
+                <h1 > Oddly Enough 1:1 NFT</h1>
+                <ConnectButton moralisAuth={false} />
             </nav>
         </>
     );
