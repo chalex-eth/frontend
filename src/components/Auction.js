@@ -5,17 +5,18 @@ import { useEffect, useState } from "react"
 import { Information, Form } from "web3uikit"
 import { formatEther } from 'ethers/lib/utils'
 import { useNotification } from "web3uikit"
-import { useCountdown } from '../hooks/useCountdown';
 
 export default function Auction() {
 
+    const startAuction = 1650454861;
+    const endAuction = 1651318861;
     const { Moralis, isWeb3Enabled, chainId: chainIdHex, account } = useMoralis()
     const chainId = parseInt(chainIdHex)
     const auctionAddress = chainId in contractAddress ? contractAddress[chainId][0] : null
 
     const [biddingPrice, setBidPrice] = useState("0")
     const [bidder, setBidder] = useState("0")
-    const [endAuction, setEndingAuction] = useState("0")
+    const [timeLeft, setTimeLeft] = useState("0");
     const dispatch = useNotification()
 
     const shortenAddress = (addr) => `${addr.slice(0, 5)}...${addr.slice(-4)}`;
@@ -45,16 +46,31 @@ export default function Auction() {
     async function updateUIValues() {
         const bidPriceFromCall = (await getbidPrice()).toString()
         const bidderFromCall = await getBidder()
-        const endAuctionFromCall = (await getEndingAuction()).toString()
         setBidPrice(formatEther(bidPriceFromCall))
         setBidder(bidderFromCall)
-        setEndingAuction(setTime(endAuctionFromCall))
     }
 
-    const setTime = (timestamp) => {
-        var tmp = new Date(timestamp * 1000).toLocaleString();
-        return tmp;
+
+    const setTime = () => {
+        var now = Math.floor(Date.now() / 1000);
+        var diff = Number(endAuction) - Number(now);
+        var h = Math.floor(diff % (3600 * 24) / 3600);
+        var m = Math.floor(diff % 3600 / 60);
+        var s = Math.floor(diff % 60);
+        var timer = String();
+        timer = h + "h      " + m + "m      " + s + "s";
+        setTimeLeft(timer);
     }
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+
+            setTime();
+        }, 1000);
+        return () => clearInterval(interval);
+
+    }, []);
+
 
     useEffect(() => {
         if (isWeb3Enabled) {
@@ -103,12 +119,13 @@ export default function Auction() {
 
     return (
         <>
-            <Information information={endAuction}
-                topic="Auction end" />
-            <Information information={shortenAddress(bidder)}
-                topic="Winning bidder" />
-            <Information information={biddingPrice + " ETH"}
-                topic="Current bid" />
+            <h1 > Oddly Enough 1:1 NFT</h1>
+            <p>Ali Chaaban X YKONE</p>
+            <h4>Current bid</h4>
+            <h3>{"ETH " + biddingPrice}</h3>
+
+            <h4>Auctions ends in</h4>
+            <h3>{timeLeft}</h3>
 
             {account ? (
                 <Form
@@ -127,6 +144,20 @@ export default function Auction() {
                     onSubmit={async (e) => await setBidTx(e)}
                     title="Place a bid"
                 />) : (<h2> Please connect wallet</h2>)}
+
+            <h4>Winning bidder</h4>
+            <h3>{shortenAddress(bidder)}</h3>
+
+            <form onSubmit={async (e) => await setBidTx(e)}>
+                <label>
+                    Place a bid :
+                    <input type="number" name="name" />
+                </label>
+                <input type="submit" value="Bid" />
+            </form>
+
+
+
 
         </>
     )
